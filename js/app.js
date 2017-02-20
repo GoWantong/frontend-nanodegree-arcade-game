@@ -1,4 +1,5 @@
 var score = 0;
+var selected = false;
 
 // Enemies our player must avoid
 var Enemy = function () {
@@ -51,10 +52,10 @@ Player.prototype.update = function () {
 
     for (var i = 0; i < allEnemies.length; i++) {
 
-        if (allEnemies[i].x + 101 >= player.x && allEnemies[i].x - 101 <= player.x + 101 && allEnemies[i].y === player.y) {
+        if (allEnemies[i].x + 101 >= this.x && allEnemies[i].x - 101 <= this.x + 101 && allEnemies[i].y === this.y) {
             score -= 1;
-            player.x = 202;
-            player.y = 392;
+            this.x = 202;
+            this.y = 392;
         }
     }
 };
@@ -66,28 +67,86 @@ Player.prototype.render = function () {
 Player.prototype.handleInput = function (keyCode) {
     switch (keyCode) {
         case 'left':
-            if (player.x >= 101) {
-                player.x -= 101;
+            if (this.x >= 101) {
+                this.x -= 101;
             }
             break;
         case 'up':
-            if (player.y > 0) {
-                player.y -= 83;
+            if (this.y > 0) {
+                this.y -= 83;
             }
             break;
         case 'right':
-            if (player.x < 404) {
-                player.x += 101;
+            if (this.x < 404) {
+                this.x += 101;
             }
             break;
         case 'down':
-            if (player.y < 392) {
-                player.y += 83;
+            if (this.y < 392) {
+                this.y += 83;
             }
             break;
     }
 };
 
+// character
+var Character = function (num) {
+    var charArr = ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-princess-girl.png'
+    ];
+    this.sprite = charArr[num];
+    this.x = num * 101;
+    this.y = 392;
+};
+
+Character.prototype.render = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+// Selector
+var Selector = function () {
+    this.charArr = ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-princess-girl.png'
+    ];
+    this.num = 2;
+    this.x = 202;
+    this.y = 392;
+    this.selected = false;
+    this.charSprite = this.charArr[2];
+};
+
+Selector.prototype.render = function () {
+    ctx.drawImage(Resources.get('images/Selector.png'), this.x, this.y);
+};
+
+Selector.prototype.handleInput = function (keyCode) {
+    switch (keyCode) {
+        case 'left':
+            if (this.x >= 101) {
+                this.x -= 101;
+                this.num -= 1;
+            }
+            break;
+        case 'right':
+            if (this.x < 404) {
+                this.x += 101;
+                this.num += 1;
+            }
+            break;
+        case 'up':
+        case 'down':
+            this.selected = true;
+            player.sprite = this.charArr[this.num];
+            player.x = this.x;
+            break;
+    }
+};
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -97,6 +156,14 @@ var enemy2 = new Enemy();
 var enemy3 = new Enemy();
 var allEnemies = [enemy1, enemy2, enemy3];
 var player = new Player();
+var character0 = new Character(0);
+var character1 = new Character(1);
+var character2 = new Character(2);
+var character3 = new Character(3);
+var character4 = new Character(4);
+var allCharacters = [character0, character1, character2, character3, character4];
+var selector = new Selector();
+
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -108,34 +175,31 @@ document.addEventListener('keyup', function (e) {
         39: 'right',
         40: 'down'
     };
-
-    player.handleInput(allowedKeys[e.keyCode]);
-    /*
-    var allowedKeys = {
-        37: function(){
-            // left
-            if( player.x >101 ) {
-                player.x -= 101;
-            }
-        },
-        38: function() {
-            // up
-            if( player.y > 60 ) {
-                player.y -= 83;
-            }
-        },
-        39: function() {
-            // right
-            if( player.x <= 404 ) {
-                player.y += 101;
-            }
-        },
-        40: function() {
-            // down
-            if( player.y <392 ) {
-                player += 83;
-            }
-        }
-    };
-    */
+    if (selector && selector.selected) {
+        player.handleInput(allowedKeys[e.keyCode]);
+    } else {
+        selector.handleInput(allowedKeys[e.keyCode]);
+    }
 });
+
+// selector
+// function selector() {
+//     var charArr = ['images/char-boy.png',
+//             'images/char-cat-girl.png',
+//             'images/char-pink-girl.png',
+//             'images/char-horn-girl.png',
+//             'images/char-princess-girl.png'
+//         ],
+//         num = charArr.length,
+//         i = 0;
+//         // selectorImg = new Image();
+
+//         // selectorImg.src = 'images/Selector.png';
+
+//     for (; i < num; i++) {
+//         ctx.drawImage(Resources.get(charArr[i]), i * 101, 392);
+//         Resources.get(charArr[i]).addEventListener('mouseover', function(i){
+//             ctx.drawImage(selectorImg, i * 101, 392);
+//         });
+//     }
+// }
